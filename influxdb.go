@@ -26,7 +26,7 @@ type reporter struct {
 
 type FieldMetadata struct {
     Name  string             `json:"n"` 
-    Tag []map[string]string  `json:"t"`
+    Tags []map[string]string  `json:"t"`
 }
 
 func (f *FieldMetadata) String() {	
@@ -43,7 +43,7 @@ func getFieldMetaDataFromString(field string) *FieldMetadata {
 	// Here's the actual decoding, and a check for
 	// associated errors.
 	if err := json.Unmarshal(byt, &dat); err != nil {
-		panic(err)
+		return &FieldMetadata(Name: field, Tags: []string{})
 	}
 	return &dat
 }
