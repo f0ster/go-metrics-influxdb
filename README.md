@@ -22,6 +22,20 @@ go influxdb.InfluxDB(
     "myuser",                // your InfluxDB user
     "mypassword",            // your InfluxDB password
 )
+
+// recently added - support for tags per metric
+
+type FieldMetadata struct {
+    Name  string             `json:"n"` 
+    Tags  map[string]string  `json:"t"`
+}
+
+
+fieldMetadata := influxdb.FieldMetadata{Name: "request", Tags: map[string]string{"status-code": strconv.Itoa(rw.StatusCode()), "method": req.Method, "path": uriPath}}
+// tag metadata is encoded into the existing 'name' field for posting to influx, as json
+meter := metrics.NewMeter()
+//registry.GetOrRegister(fieldMetadata.String(), meter)
+
 ```
 
 License
