@@ -48,7 +48,7 @@ func getFieldMetaDataFromString(field string) *FieldMetadata {
 	return &dat
 }
 
-func combineMaps(a , b map[string]string) map[string[string] {
+func combineMaps(a , b map[string]string) map[string]string {
 	for k, v := range b {
 		a[k] = v
 	}
