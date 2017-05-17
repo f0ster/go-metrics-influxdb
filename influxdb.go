@@ -5,7 +5,7 @@ import (
 	"log"
 	uurl "net/url"
 	"time"
-	"json"
+	"encoding/json"
 
 	"github.com/influxdata/influxdb/client"
 	"github.com/rcrowley/go-metrics"
