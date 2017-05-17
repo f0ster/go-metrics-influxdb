@@ -23,6 +23,33 @@ type reporter struct {
 	client *client.Client
 }
 
+
+type FieldMetadata struct {
+    Name  string             `json:"n"` 
+    Tag []map[string]string  `json:"t"`
+}
+
+func (f *FieldMetadata) String() {	
+	if jsonObj, err := json.Marshal(f); err != nil {
+		panic(err)
+	}
+    return string(jsonObj)
+}
+
+func getFieldMetaDataFromString(field string) *FieldMetadata {
+	byt := []byte(field)
+	var dat fieldMetadata
+
+	// Here's the actual decoding, and a check for
+	// associated errors.
+	if err := json.Unmarshal(byt, &dat); err != nil {
+		panic(err)
+	}
+	return &dat
+}
+
+
+
 // InfluxDB starts a InfluxDB reporter which will post the metrics from the given registry at each d interval.
 func InfluxDB(r metrics.Registry, d time.Duration, url, database, username, password string) {
 	InfluxDBWithTags(r, d, url, database, username, password, nil)
@@ -86,18 +113,21 @@ func (r *reporter) run() {
 	}
 }
 
+
 func (r *reporter) send() error {
 	var pts []client.Point
 
 	r.reg.Each(func(name string, i interface{}) {
 		now := time.Now()
 
+		fieldMetaData := getFieldMetaDataFromString(name)
+
 		switch metric := i.(type) {
 		case metrics.Counter:
 			ms := metric.Snapshot()
 			pts = append(pts, client.Point{
-				Measurement: fmt.Sprintf("%s.count", name),
-				Tags:        r.tags,
+				Measurement: fmt.Sprintf("%s.count", fieldMetaData.Name),
+				Tags:        append(fieldMetaData.Tags, r.tags...),
 				Fields: map[string]interface{}{
 					"value": ms.Count(),
 				},
@@ -106,8 +136,8 @@ func (r *reporter) send() error {
 		case metrics.Gauge:
 			ms := metric.Snapshot()
 			pts = append(pts, client.Point{
-				Measurement: fmt.Sprintf("%s.gauge", name),
-				Tags:        r.tags,
+				Measurement: fmt.Sprintf("%s.gauge", fieldMetaData.Name),
+				Tags:        append(fieldMetaData.Tags, r.tags...),
 				Fields: map[string]interface{}{
 					"value": ms.Value(),
 				},
@@ -116,8 +146,8 @@ func (r *reporter) send() error {
 		case metrics.GaugeFloat64:
 			ms := metric.Snapshot()
 			pts = append(pts, client.Point{
-				Measurement: fmt.Sprintf("%s.gauge", name),
-				Tags:        r.tags,
+				Measurement: fmt.Sprintf("%s.gauge", fieldMetaData.Name),
+				Tags:        append(fieldMetaData.Tags, r.tags...),
 				Fields: map[string]interface{}{
 					"value": ms.Value(),
 				},
@@ -127,8 +157,8 @@ func (r *reporter) send() error {
 			ms := metric.Snapshot()
 			ps := ms.Percentiles([]float64{0.5, 0.75, 0.95, 0.99, 0.999, 0.9999})
 			pts = append(pts, client.Point{
-				Measurement: fmt.Sprintf("%s.histogram", name),
-				Tags:        r.tags,
+				Measurement: fmt.Sprintf("%s.histogram", fieldMetaData.Name),
+				Tags:        append(fieldMetaData.Tags, r.tags...),
 				Fields: map[string]interface{}{
 					"count":    ms.Count(),
 					"max":      ms.Max(),
@@ -148,8 +178,8 @@ func (r *reporter) send() error {
 		case metrics.Meter:
 			ms := metric.Snapshot()
 			pts = append(pts, client.Point{
-				Measurement: fmt.Sprintf("%s.meter", name),
-				Tags:        r.tags,
+				Measurement: fmt.Sprintf("%s.meter", fieldMetaData.Name),
+				Tags:        append(fieldMetaData.Tags, r.tags...),
 				Fields: map[string]interface{}{
 					"count": ms.Count(),
 					"m1":    ms.Rate1(),
@@ -163,8 +193,8 @@ func (r *reporter) send() error {
 			ms := metric.Snapshot()
 			ps := ms.Percentiles([]float64{0.5, 0.75, 0.95, 0.99, 0.999, 0.9999})
 			pts = append(pts, client.Point{
-				Measurement: fmt.Sprintf("%s.timer", name),
-				Tags:        r.tags,
+				Measurement: fmt.Sprintf("%s.timer", fieldMetaData.Name),
+				Tags:        append(fieldMetaData.Tags, r.tags...),
 				Fields: map[string]interface{}{
 					"count":    ms.Count(),
 					"max":      ms.Max(),
