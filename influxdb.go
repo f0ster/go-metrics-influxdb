@@ -43,7 +43,7 @@ func getFieldMetaDataFromString(field string) *FieldMetadata {
 	// Here's the actual decoding, and a check for
 	// associated errors.
 	if err := json.Unmarshal(byt, &dat); err != nil {
-		return &FieldMetadata(Name: field, Tags: []string{})
+		return &FieldMetadata(Name: field, Tags: []map[string]string{})
 	}
 	return &dat
 }
