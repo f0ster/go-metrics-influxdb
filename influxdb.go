@@ -31,7 +31,8 @@ type FieldMetadata struct {
 }
 
 func (f *FieldMetadata) String() {	
-	if jsonObj, err := json.Marshal(f); err != nil {
+	jsonObj, err := json.Marshal(f)
+	if err != nil {
 		panic(err)
 	}
     return string(jsonObj)
