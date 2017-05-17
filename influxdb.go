@@ -30,7 +30,7 @@ type FieldMetadata struct {
     Tags  map[string]string  `json:"t"`
 }
 
-func (f *FieldMetadata) String() {	
+func (f *FieldMetadata) String() string {	
 	jsonObj, err := json.Marshal(f)
 	if err != nil {
 		panic(err)
