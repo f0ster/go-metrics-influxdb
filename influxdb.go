@@ -5,6 +5,7 @@ import (
 	"log"
 	uurl "net/url"
 	"time"
+	"json"
 
 	"github.com/influxdata/influxdb/client"
 	"github.com/rcrowley/go-metrics"
@@ -38,7 +39,7 @@ func (f *FieldMetadata) String() {
 
 func getFieldMetaDataFromString(field string) *FieldMetadata {
 	byt := []byte(field)
-	var dat fieldMetadata
+	var dat FieldMetadata
 
 	// Here's the actual decoding, and a check for
 	// associated errors.
